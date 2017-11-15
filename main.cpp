@@ -2,28 +2,44 @@
 #include <string>
 #include <fstream>
 
+#include "ping.h"
+
 using namespace std;
 
+static const int SCANS = 3;
 static const string OUTPUT_FILE = "output";
 static const string NMAP_COMMAND = "sudo nmap -sP -oG";
 static const string IP_GATEWAY = "192.168.0.0/24";
+static const string DEVICES[2] = {"192.168.0.20", "192.168.0.21"};
 
-static const string devices[2] = {"192.168.0.20", "192.168.0.21"};
+/*
+ * Performs the nmap command and outputs to the specified file
+ */
+int performScanCommand(const string& file)
+{
+    char* cmd = new char[NMAP_COMMAND.length() + file.length() + IP_GATEWAY.length() + 2];
+    sprintf(cmd, "%s %s %s", NMAP_COMMAND.c_str(), file.c_str(), IP_GATEWAY.c_str() );
+    int ret = system(cmd);
+    delete[] cmd;
+    return ret;
+}
 
-int checkForDevice(const string& file)
+/*
+ * checks the provided file for if the device IP appears
+ */
+bool checkForDevice(const string& file, const string& device)
 {
     string line;
-    int loc;
-    ifstream output (OUTPUT_FILE);
+    ifstream output (file);
 
     if (output.is_open())
     {
         while ( getline (output,line) )
         {
           cout << line << '\n';
-          if(line.find(devices[0]) != -1 || line.find(devices[1]) != -1)
+          if(line.find(device) != string::npos)
           {
-              //do something where either of the devices are there
+              return true;
           }
         }
         output.close();
@@ -32,16 +48,53 @@ int checkForDevice(const string& file)
     {
         cout << "Unable to open file" << endl;
     }
+
+    return false;
 }
 
+bool scanForDevices()
+{
+    string file;
+    int numberOfDevices = sizeof(DEVICES)/sizeof(DEVICES[0]);
+
+    for(int i = 0; i < SCANS; i++)
+    {
+        file = OUTPUT_FILE + ".1";
+        performScanCommand(file);
+
+        for(int j = 0; j < numberOfDevices; j ++)
+        {
+            if(checkForDevice(file, DEVICES[0]))
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/*
+ * Arguments
+ * -s # : scan with #s interval
+ * -m 0/1 : enable or disable motion
+ * -u : upload folder to google drive
+ */
 int main()
 {
-    char* cmd = new char[NMAP_COMMAND.length() + OUTPUT_FILE.length() + IP_GATEWAY.length() + 2];
-    sprintf(cmd, "%s %s %s", NMAP_COMMAND.c_str(), OUTPUT_FILE.c_str(), IP_GATEWAY.c_str() );
-    system(cmd);
+    cout << "ping returned " << ping("192.168.0.1") << endl;
+    cout << "ping returned " << ping("192.168.0.15") << endl;
+    bool found = true;//scanForDevices();
 
-    checkForDevice();
+    if(found)
+    {
 
-    delete[] cmd;
+    }
+    else
+    {
+
+    }
+
+
     return 0;
 }
