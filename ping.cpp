@@ -21,7 +21,7 @@ int ping(string target)
     struct timeval tv;
     int retval;
     struct timeval start, end;
-    int /*start_t, */end_t;
+    int end_t;
     bool cont = true;
 
     to.sin_family = AF_INET;
@@ -44,19 +44,13 @@ int ping(string target)
         hostname = hnamebuf;
     }
     packlen = datalen + MAXIPLEN + MAXICMPLEN;
+
     if ( (packet = (u_char *)malloc((u_int)packlen)) == NULL)
     {
         cerr << "malloc error\n";
         return -1;
     }
 
-/*
-    if ( (proto = getprotobyname("icmp")) == NULL)
-    {
-        cerr << "unknown protocol icmp" << endl;
-        return -1;
-    }
-*/
     if ( (s = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) < 0)
     {
         perror("socket");	/* probably not running as superuser */

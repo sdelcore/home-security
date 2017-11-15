@@ -4,7 +4,9 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += main.cpp \
-    ping.cpp
+    ping.cpp \
+    devicehandler.cpp
 
 HEADERS += \
-    ping.h
+    ping.h \
+    devicehandler.h
