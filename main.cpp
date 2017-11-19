@@ -1,81 +1,25 @@
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <unistd.h>
-#include <syslog.h>
-#include <string.h>
+#include "homesecurity.h"
 
-#include "devicehandler.h"
+int main(int argc, char *argv[])
+{
+    HomeSecurity home;
 
-using namespace std;
-
-#define DAEMON_NAME "vdaemon"
-
-void process(){
-
-    syslog (LOG_NOTICE, "Scanning for devices.");
-    DeviceHandler dev;
-    bool deviceFound = dev.scanForDevices();
-
-    if(deviceFound)
+    if(argc == 1)
     {
-        syslog (LOG_NOTICE, "Devices found.");
-        //start motion
+        return home.startDaemon();
     }
+    else if(argc > 2)
+        cout << "This program only accepts:\n-n : run in non daemon mode\n-u : upload motion images to server" << endl;;
+
+    if(strcmp(argv[1], "-n") == 0)
+    {
+        home.process();
+        return 0;
+    }
+    else if(strcmp(argv[1], "-u") == 0)
+        return home.backupFiles();
     else
-    {
-        syslog (LOG_NOTICE, "No devices found");
-        //stop motion
-    }
+        cout << "Unknown command" << endl;
 
-    return 0;
-}
-
-int main(int argc, char *argv[]) {
-
-    //Set our Logging Mask and open the Log
-    setlogmask(LOG_UPTO(LOG_NOTICE));
-    openlog(DAEMON_NAME, LOG_CONS | LOG_NDELAY | LOG_PERROR | LOG_PID, LOG_USER);
-
-    syslog(LOG_INFO, "Entering Daemon");
-
-    pid_t pid, sid;
-
-   //Fork the Parent Process
-    pid = fork();
-
-    if (pid < 0) { exit(EXIT_FAILURE); }
-
-    //We got a good pid, Close the Parent Process
-    if (pid > 0) { exit(EXIT_SUCCESS); }
-
-    //Change File Mask
-    umask(0);
-
-    //Create a new Signature Id for our child
-    sid = setsid();
-    if (sid < 0) { exit(EXIT_FAILURE); }
-
-    //Change Directory
-    //If we cant find the directory we exit with failure.
-    if ((chdir("/")) < 0) { exit(EXIT_FAILURE); }
-
-    //Close Standard File Descriptors
-    close(STDIN_FILENO);
-    close(STDOUT_FILENO);
-    close(STDERR_FILENO);
-
-    //----------------
-    //Main Process
-    //----------------
-    while(true){
-        process();    //Run our Process
-        sleep(60);    //Sleep for 60 seconds
-    }
-
-    //Close the log
-    closelog ();
+    return -1;
 }

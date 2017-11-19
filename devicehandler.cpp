@@ -1,13 +1,5 @@
 #include "devicehandler.h"
 
-using namespace std;
-
-static const int SCANS = 3;
-static const string OUTPUT_FILE = "output";
-static const string NMAP_COMMAND = "sudo nmap -sP -oG";
-static const string IP_GATEWAY = "192.168.0.0/24";
-static const string DEVICES[2] = {"192.168.0.20", "192.168.0.21"};
-
 DeviceHandler::DeviceHandler()
 {
 

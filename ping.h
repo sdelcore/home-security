@@ -12,12 +12,10 @@
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
-//#include <netinet/ip_var.h>
 #include <netdb.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <ctype.h>
-//#include <errno.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
