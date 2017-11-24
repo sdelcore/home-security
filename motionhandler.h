@@ -20,9 +20,9 @@ static const string HOME_DIR = "/home/pi/";
 static const string MOTION_DIR = HOME_DIR + "Motion";
 
 static const string TAR_EXT = ".tar.gz";
-static const string TAR_COMMAND_START = "tar -zcfv ";
-static const string TAR_COMMAND_END = " " + MOTION_DIR;
-static const string UNTAR_COMMAND = "tar -zxfv *" + TAR_EXT;
+static const string TAR_COMMAND_START = "tar -zcfv " + HOME_DIR + "tar/";
+static const string TAR_COMMAND_END = TAR_EXT + " " + MOTION_DIR;
+static const string UNTAR_COMMAND = "tar -zxfv /HDD/media/home-security/*" + TAR_EXT + " && rm /HDD/media/home-security/*" + TAR_EXT;
 
 static const string EMPTY_MOTION_COMMAND = "rm -rf " + MOTION_DIR + "/";
 
@@ -32,6 +32,8 @@ public:
     MotionHandler();
     bool isMotionRunning();
     int folderSize(const char* folder);
+    string getTarCommand();
+    string getTimeDateString();
 private:
     pid_t findProcess(const char* name);
 };

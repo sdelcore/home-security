@@ -11,11 +11,12 @@ HomeSecurity::~HomeSecurity()
     //make sure motion is stopped
     if(motionHandler->isMotionRunning())
         system(STOP_MOTION.c_str());
+
     delete deviceHandler;
     delete motionHandler;
 }
 
-int HomeSecurity::startDaemon()
+int HomeSecurity::startDaemon(int waitTime)
 {
     //Set our Logging Mask and open the Log
     setlogmask(LOG_UPTO(LOG_NOTICE));
@@ -52,85 +53,20 @@ int HomeSecurity::startDaemon()
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
 
+    int processReturn;
     //----------------
     //Main Process
     //----------------
     while(true){
-        process();
-        sleep(30);
+        processReturn = process();
+
+        if(processReturn < 0)
+            break;
+
+        sleep(waitTime);
     }
 
     //Close the log
     closelog ();
-}
-
-//todo: return something usefull
-void HomeSecurity::process()
-{
-    syslog (LOG_NOTICE, "Scanning for devices.");
-
-    bool deviceFound;
-
-    for(int i = 0; i < 3; i++)
-    {
-        deviceFound = deviceHandler->scanForDevices();
-
-        if(deviceFound)
-            break;
-    }
-
-    if(deviceFound)
-    {
-        syslog (LOG_NOTICE, "Devices found.");
-
-        if(!motionHandler->isMotionRunning())
-            return;
-
-        system(STOP_MOTION.c_str());
-    }
-    else
-    {
-        syslog (LOG_NOTICE, "No devices found");
-
-        if(motionHandler->isMotionRunning())
-            return;
-
-        system(START_MOTION.c_str());
-    }
-}
-
-int HomeSecurity::backupFiles()
-{
-    int ret;
-    string tar = getTarCommand();
-    /*
-    //ret = system(tar);
-
-    if(ret < 0)
-        return ret;
-    */
-
-    //for now just upload them all without taring them
-    string scp = "scp /home/pi/Motion pi@192.168.0.13:/home/pi/Motion && rm /home/pi/Motion/*";
-    ret = system(scp.c_str());
-    return ret;
-}
-
-string HomeSecurity::getTarCommand()
-{
-    return TAR_COMMAND_START + getTimeDateString() + TAR_COMMAND_END;
-}
-
-string HomeSecurity::getTimeDateString()
-{
-    time_t rawtime;
-    tm* timeinfo;
-    char buffer [80];
-
-    time(&rawtime);
-    timeinfo = localtime(&rawtime);
-
-    strftime(buffer,80,"%Y-%m-%d-%H-%M-%S",timeinfo);
-
-    return string(buffer, 80);
+    return 0;
 }

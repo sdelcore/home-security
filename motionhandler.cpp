@@ -100,3 +100,22 @@ int MotionHandler::folderSize(const char* folder)
     closedir(dir);
     return size;
 }
+
+string MotionHandler::getTarCommand()
+{
+    return TAR_COMMAND_START + getTimeDateString() + TAR_COMMAND_END;
+}
+
+string MotionHandler::getTimeDateString()
+{
+    time_t rawtime;
+    tm* timeinfo;
+    char buffer [80];
+
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+
+    strftime(buffer,80,"%Y-%m-%d-%H-%M-%S",timeinfo);
+
+    return string(buffer, 80);
+}

@@ -1,7 +1,7 @@
 all: home-security
 
-home-security: main.o devicehandler.o motionhandler.o ping.o homesecurity.o
-	g++ main.o devicehandler.o motionhandler.o ping.o homesecurity.o -o home-security
+home-security: main.o devicehandler.o motionhandler.o ping.o homesecurity.o backupprocess.o cameraprocess.o
+	g++ main.o devicehandler.o motionhandler.o ping.o homesecurity.o backupprocess.o cameraprocess.o -o home-security
 
 main.o: main.cpp
 	g++ -c main.cpp
@@ -17,6 +17,12 @@ ping.o: ping.cpp
 	
 homesecurity.o: homesecurity.cpp
 	g++ -c homesecurity.cpp
+	
+cameraprocess.o: cameraprocess.cpp
+	g++ -c cameraprocess.cpp
+	
+backupprocess.o: backupprocess.cpp
+	g++ -c backupprocess.cpp
 
 clean:
 	rm *o home-security

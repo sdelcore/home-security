@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <syslog.h>
 #include <string.h>
+#include <functional>
 
 #include "devicehandler.h"
 #include "motionhandler.h"
@@ -19,18 +20,14 @@ static const char* DAEMON_NAME = "homesecurityd";
 
 class HomeSecurity
 {
-private:
+public:
     DeviceHandler* deviceHandler;
     MotionHandler* motionHandler;
 
-    string getTimeDateString();
-    string getTarCommand();
-public:
     HomeSecurity();
     ~HomeSecurity();
-    int startDaemon();
-    void process();
-    int backupFiles();
+    int startDaemon(int waitTime);
+    virtual int process() = 0;
 };
 
 #endif // HOMESECURITY_H
