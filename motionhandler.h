@@ -19,10 +19,12 @@ static const string STOP_MOTION = "killall " + MOTION;
 static const string HOME_DIR = "/home/pi/";
 static const string MOTION_DIR = HOME_DIR + "Motion";
 
+static const string STORAGE_DIR = "/HDD/media/home-security/";
+
 static const string TAR_EXT = ".tar.gz";
 static const string TAR_COMMAND_START = "tar -zcfv " + HOME_DIR + "tar/";
 static const string TAR_COMMAND_END = TAR_EXT + " " + MOTION_DIR;
-static const string UNTAR_COMMAND = "tar -zxfv /HDD/media/home-security/*" + TAR_EXT + " && rm /HDD/media/home-security/*" + TAR_EXT;
+static const string UNTAR_COMMAND = "tar -zxfv " + STORAGE_DIR + "*" + TAR_EXT + " && rm  " + STORAGE_DIR + "*" + TAR_EXT;
 
 static const string EMPTY_MOTION_COMMAND = "rm -rf " + MOTION_DIR + "/";
 

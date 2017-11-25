@@ -47,6 +47,29 @@ int CameraProcess::process()
 
 int CameraProcess::backupFiles()
 {
+
+    pid_t pid, sid;
+
+    //create another process to handle taring and sending files
+    pid = fork();
+
+    if (pid < 0)
+        exit(EXIT_FAILURE);
+
+    //We got a good pid, Close the Parent Process
+    if (pid > 0)
+        exit(EXIT_SUCCESS);
+
+    //Change File Mask
+    umask(0);
+
+    //Create a new Signature Id for our child
+    sid = setsid();
+    if (sid < 0)
+        exit(EXIT_FAILURE);
+
+    syslog (LOG_NOTICE, "started backup");
+
     int ret;
     string tar = motionHandler->getTarCommand();
 
@@ -60,7 +83,7 @@ int CameraProcess::backupFiles()
     if(ret < 0)
         return ret;
 
-    string scp = "scp /home/pi/tar/*tar.gz pi@192.168.0.13:/HDD/media/home-security/*.tar.gz && rm /home/pi/tar/*.tar.gz";
+    string scp = "scp /home/pi/tar/*tar.gz pi@192.168.0.13:" + STORAGE_DIR + "*" + TAR_EXT + " && rm /home/pi/tar/*.tar.gz";
     ret = system(scp.c_str());
     return ret;
 }

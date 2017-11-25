@@ -9,7 +9,7 @@ SOURCES += main.cpp \
     motionhandler.cpp \
     homesecurity.cpp \
     cameraprocess.cpp \
-    backupprocess.cpp
+    storageprocess.cpp
 
 HEADERS += \
     ping.h \
@@ -17,4 +17,4 @@ HEADERS += \
     motionhandler.h \
     homesecurity.h \
     cameraprocess.h \
-    backupprocess.h
+    storageprocess.h

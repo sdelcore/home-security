@@ -1,10 +1,10 @@
 #include "cameraprocess.h"
-#include "backupprocess.h"
+#include "storageprocess.h"
 
 int main(int argc, char *argv[])
 {
     CameraProcess cameraProcess;
-    BackupProcess backupProcess;
+    StorageProcess storageProcess;
 
     if(argc == 1)
         return cameraProcess.startDaemon(30);
@@ -12,15 +12,15 @@ int main(int argc, char *argv[])
         cout << "Without an argument, home-security runs as a daemon process"
                 "This program only accepts one of the following as arguments:\n"
                 "-n : run in non daemon mode\n"
-                "-u : upload motion images to pi server\n"
+                "-u : untar motion images\n"
                 "-x : start daemon for extracting and uploading tar files to Google Drive" << endl;;
 
     if(strcmp(argv[1], "-n") == 0)
         return cameraProcess.process();
     else if(strcmp(argv[1], "-u") == 0)
-        return backupProcess.process();
+        return StorageProcess.process();
     else if(strcmp(argv[1], "-r") == 0)
-        return backupProcess.startDaemon(60 * 3);
+        return StorageProcess.startDaemon(60 * 3);
     else
         cout << "Unknown command" << endl;
 
