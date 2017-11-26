@@ -103,7 +103,8 @@ int MotionHandler::folderSize(const char* folder)
 
 string MotionHandler::getTarCommand()
 {
-    return TAR_COMMAND_START + getTimeDateString() + TAR_COMMAND_END;
+    //return TAR_COMMAND_START + getTimeDateString() + TAR_COMMAND_END;
+    return TAR_COMMAND_START + "back" + TAR_COMMAND_END;
 }
 
 string MotionHandler::getTimeDateString()

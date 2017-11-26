@@ -18,9 +18,9 @@ int main(int argc, char *argv[])
     if(strcmp(argv[1], "-n") == 0)
         return cameraProcess.process();
     else if(strcmp(argv[1], "-u") == 0)
-        return StorageProcess.process();
+        return storageProcess.process();
     else if(strcmp(argv[1], "-r") == 0)
-        return StorageProcess.startDaemon(60 * 3);
+        return storageProcess.startDaemon(60 * 3);
     else
         cout << "Unknown command" << endl;
 

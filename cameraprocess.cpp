@@ -22,10 +22,10 @@ int CameraProcess::process()
 
     if(deviceFound)
     {
-        syslog (LOG_NOTICE, "Devices found.");
-
         if(!motionHandler->isMotionRunning())
             return 0;
+
+        syslog (LOG_NOTICE, "Devices found.");
 
         system(STOP_MOTION.c_str());
 
@@ -34,10 +34,10 @@ int CameraProcess::process()
     }
     else
     {
-        syslog (LOG_NOTICE, "No devices found");
-
         if(motionHandler->isMotionRunning())
             return 0;
+
+        syslog (LOG_NOTICE, "No devices found");
 
         system(START_MOTION.c_str());
     }
@@ -47,43 +47,26 @@ int CameraProcess::process()
 
 int CameraProcess::backupFiles()
 {
-
-    pid_t pid, sid;
-
-    //create another process to handle taring and sending files
-    pid = fork();
-
-    if (pid < 0)
-        exit(EXIT_FAILURE);
-
-    //We got a good pid, Close the Parent Process
-    if (pid > 0)
-        exit(EXIT_SUCCESS);
-
-    //Change File Mask
-    umask(0);
-
-    //Create a new Signature Id for our child
-    sid = setsid();
-    if (sid < 0)
-        exit(EXIT_FAILURE);
-
-    syslog (LOG_NOTICE, "started backup");
+    syslog (LOG_NOTICE, "Starting backup");
 
     int ret;
     string tar = motionHandler->getTarCommand();
 
     ret = system(tar.c_str());
 
-    if(ret < 0)
+    if(ret != 0)
         return ret;
 
     ret = system(EMPTY_MOTION_COMMAND.c_str());
 
-    if(ret < 0)
+    if(ret != 0)
         return ret;
 
-    string scp = "scp /home/pi/tar/*tar.gz pi@192.168.0.13:" + STORAGE_DIR + "*" + TAR_EXT + " && rm /home/pi/tar/*.tar.gz";
+    string scp = "scp " + HOME_DIR + "tar/*tar.gz " + STORAGE_IP + STORAGE_DIR;
+
     ret = system(scp.c_str());
+
+    system("rm /home/pi/tar/*.tar.gz");
+
     return ret;
 }
