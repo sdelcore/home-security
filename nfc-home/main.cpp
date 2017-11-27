@@ -23,62 +23,52 @@ byte ReadTag; // Variable used to store anti-collision value to read Tag informa
 byte TagData[MAX_LEN]; // Variable used to store Full Tag Data
 byte TagSerialNumber[5]; // Variable used to store only Tag Serial Number
 byte GoodTagSerialNumber[2][5] = {
-    {0x95, 0xEB, 0x17, 0x53},
-    {0x95, 0xEB, 0x17, 0x53}
+    {0x88, 0x04, 0xDF, 0xDE},
+    {0x08, 0xF8, 0x64, 0xE2}
     }; // The Tag Serial number we are looking for
 
 int armSecurity(MFRC522& nfc)
 {
-    bool GoodTag= false; // Variable used to confirm good Tag Detected
+    bool GoodTag = false; // Variable used to confirm good Tag Detected
 
     // Check to see if a Tag was detected
     // If yes, then the variable FoundTag will contain "MI_OK"
     FoundTag = nfc.requestTag(MF1_REQIDL, TagData);
+    delay(1);
 
     if (FoundTag != MI_OK)
         return 0;
-
 
     // Get anti-collision value to properly read information from the Tag
     ReadTag = nfc.antiCollision(TagData);
     memcpy(TagSerialNumber, TagData, 4); // Write the Tag information in the TagSerialNumber variable
 
-    Serial.println("Tag detected.");
-    Serial.print("Serial Number: ");
     for (int i = 0; i < 4; i++) { // Loop to print serial number to serial monitor
         Serial.print(TagSerialNumber[i], HEX);
         Serial.print(", ");
     }
-    Serial.println("");
-    Serial.println();
-
 
     // Check if detected Tag has the right Serial number we are looking for
-    for(int i=0; i < 4; i++)
+    for(int i=0; i < 5; i++)
     {
         if (GoodTagSerialNumber[0][i] != TagSerialNumber[i]) {
-            break; // if not equal, then break out of the "for" loop
+            continue; // if not equal, then break out of the "for" loop
         }
+
         if (i == 3) { // if we made it to 4 loops then the Tag Serial numbers are matching
-            GoodTag=true;
+            GoodTag = true;
         }
     }
-    if (GoodTag)
-    {
-        Serial.println("Success");
-        Serial.println();
 
-        for (int y = 0; y < 3; y++){
-            digitalWrite (BUZZER_PIN, HIGH) ;// Buzzer On
-            delay (50) ;// Delay 1ms
-            digitalWrite (BUZZER_PIN, LOW) ;// Buzzer Off
-            delay (50) ;// delay 1ms
-        }
 
-        ARMED = !ARMED;
+    if (!GoodTag)
+        return 0;
 
-        delay(1500);
-    }
+    digitalWrite (BUZZER_PIN, HIGH) ;// Buzzer On
+    delay (1000) ;// Delay 1ms
+    digitalWrite (BUZZER_PIN, LOW) ;// Buzzer Off
+
+    ARMED = !ARMED;
 
     if(ARMED)
     {
@@ -89,6 +79,7 @@ int armSecurity(MFRC522& nfc)
         digitalWrite(LED_PIN, LOW);
     }
 
+    delay (5000) ;
     //send armed to rpi
 
     return 0;
@@ -126,9 +117,7 @@ int main() {
     Serial.println(version, HEX);
     Serial.println();
 
-    int ret = 0;
-
-    while(ret == 0)
+    while(1)
         armSecurity(nfc);
 
 }
