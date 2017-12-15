@@ -16,13 +16,12 @@ Created using QtCreator
 
 static const int LED_PIN = 5; // Pin 5 connected to DIN of RGB Stick
 static const int BUZZER_PIN = 3; // Pin 3 connected to + pin of the Buzzer
-static bool ARMED = false;
 
 byte FoundTag; // Variable used to check if Tag was found
 byte ReadTag; // Variable used to store anti-collision value to read Tag information
 byte TagData[MAX_LEN]; // Variable used to store Full Tag Data
 byte TagSerialNumber[5]; // Variable used to store only Tag Serial Number
-byte GoodTagSerialNumber[2][5] = {
+byte GoodTagSerialNumber[2][4] = {
     {0x88, 0x04, 0xDF, 0xDE},
     {0x08, 0xF8, 0x64, 0xE2}
     }; // The Tag Serial number we are looking for
@@ -43,13 +42,8 @@ int armSecurity(MFRC522& nfc)
     ReadTag = nfc.antiCollision(TagData);
     memcpy(TagSerialNumber, TagData, 4); // Write the Tag information in the TagSerialNumber variable
 
-    for (int i = 0; i < 4; i++) { // Loop to print serial number to serial monitor
-        Serial.print(TagSerialNumber[i], HEX);
-        Serial.print(", ");
-    }
-
     // Check if detected Tag has the right Serial number we are looking for
-    for(int i=0; i < 5; i++)
+    for(int i = 0; i < 4; i++)
     {
         if (GoodTagSerialNumber[0][i] != TagSerialNumber[i]) {
             continue; // if not equal, then break out of the "for" loop
@@ -64,24 +58,21 @@ int armSecurity(MFRC522& nfc)
     if (!GoodTag)
         return 0;
 
+    digitalWrite(LED_PIN, HIGH);
     digitalWrite (BUZZER_PIN, HIGH) ;// Buzzer On
     delay (1000) ;// Delay 1ms
+    digitalWrite(LED_PIN, LOW);
     digitalWrite (BUZZER_PIN, LOW) ;// Buzzer Off
 
-    ARMED = !ARMED;
-
-    if(ARMED)
-    {
-        digitalWrite(LED_PIN, HIGH);
-    }
-    else
-    {
-        digitalWrite(LED_PIN, LOW);
+    Serial.print("<");
+    
+    for (int i = 0; i < 4; i++) 
+    { // Loop to print serial number to serial monitor
+        Serial.print(TagSerialNumber[i], HEX);
     }
 
+    Serial.print(">");
     delay (5000) ;
-    //send armed to rpi
-
     return 0;
 }
 
@@ -99,23 +90,14 @@ int main() {
 
     SPI.begin();
     Serial.begin(115200);
-
-    // Start to find an RFID Module
-    Serial.println("Looking for RFID Reader");
     nfc.begin();
+
     byte version = nfc.getFirmwareVersion(); // Variable to store Firmware version of the Module
 
     // If can't find an RFID Module
     if (!version) {
-        Serial.print("Didn't find RC522 board.");
         while(1); //Wait until a RFID Module is found
     }
-
-    // If found, print the information about the RFID Module
-    Serial.print("Found chip RC522 ");
-    Serial.print("Firmware version: 0x");
-    Serial.println(version, HEX);
-    Serial.println();
 
     while(1)
         armSecurity(nfc);
