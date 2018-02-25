@@ -1,16 +1,73 @@
 #include "cameraprocess.h"
 
-CameraProcess::CameraProcess() : HomeSecurity()
+CameraProcess::CameraProcess(int argc, char *argv[]) : HomeSecurity()
+{
+    application = new QCoreApplication(argc, argv);
+}
+
+CameraProcess::~CameraProcess()
+{
+    delete application;
+}
+
+int CameraProcess::process(int waitTime)
+{
+    Q_UNUSED(waitTime);
+    bool debug = true;
+
+    WebSocketServer *server = new WebSocketServer(PORT, debug);
+
+    QObject::connect(server, &WebSocketServer::closed, application, &QCoreApplication::quit);
+    QObject::connect(server, &WebSocketServer::messageReceived, this, &CameraProcess::onMessageRecieved);
+
+    QTimer timer(this);
+    timer.setInterval(waitTime);
+
+    QObject::connect(&timer, &QTimer::timeout, this, &CameraProcess::onTimeout);
+
+    //timer.start();
+    return application->exec();
+}
+
+void CameraProcess::onTimeout()
 {
 
 }
 
-//todo: return something usefull
-int CameraProcess::process()
+void CameraProcess::onMessageRecieved(QString message)
 {
-    syslog (LOG_NOTICE, "Scanning for devices.");
+    if(!NFC_TAGS.contains(message))
+        return;
 
-    bool deviceFound;
+    armed = !armed;
+
+    security(armed);
+}
+
+int CameraProcess::security(bool start)
+{
+    if(start)
+    {
+        if(!motionHandler->isMotionRunning())
+            return 0;
+
+        system(STOP_MOTION.c_str());
+        backupFiles();
+    }
+    else
+    {
+        if(motionHandler->isMotionRunning())
+            return 0;
+
+        system(START_MOTION.c_str());
+    }
+
+    return 0;
+}
+
+int CameraProcess::devicesPresent()
+{
+    bool deviceFound = false;
 
     for(int i = 0; i < 3; i++)
     {
@@ -20,27 +77,7 @@ int CameraProcess::process()
             break;
     }
 
-    if(deviceFound)
-    {
-        if(!motionHandler->isMotionRunning())
-            return 0;
-
-        syslog (LOG_NOTICE, "Devices found.");
-
-        system(STOP_MOTION.c_str());
-
-        //do this in a new thread or new process so it doesn't block
-        backupFiles();
-    }
-    else
-    {
-        if(motionHandler->isMotionRunning())
-            return 0;
-
-        syslog (LOG_NOTICE, "No devices found");
-
-        system(START_MOTION.c_str());
-    }
+    security(deviceFound);
 
     return 0;
 }

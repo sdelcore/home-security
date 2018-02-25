@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[])
 {
-    CameraProcess cameraProcess;
+    CameraProcess cameraProcess(argc, argv);
     StorageProcess storageProcess;
 
     if(argc == 1)

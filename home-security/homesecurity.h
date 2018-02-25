@@ -27,7 +27,7 @@ public:
     HomeSecurity();
     ~HomeSecurity();
     int startDaemon(int waitTime);
-    virtual int process() = 0;
+    virtual int process(int waitTime = 60000) = 0;
 };
 
 #endif // HOMESECURITY_H

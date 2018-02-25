@@ -9,7 +9,8 @@ class StorageProcess : public HomeSecurity
 {
 public:
     StorageProcess();
-    int process();
+    int process(int waitTime = 60000);
+    int backup();
 };
 
 #endif // STORAGEPROCESS_H

@@ -57,16 +57,9 @@ int HomeSecurity::startDaemon(int waitTime)
     //----------------
     //Main Process
     //----------------
-    while(true){
-        processReturn = process();
-
-        if(processReturn < 0)
-            break;
-
-        sleep(waitTime);
-    }
+    int ret = process();
 
     //Close the log
     closelog ();
-    return 0;
+    return ret;
 }

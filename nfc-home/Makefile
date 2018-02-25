@@ -12,7 +12,7 @@ BOARD_SUB	=
 # To know what MCU you can use check board.txt on end of this file
 #MCU		# 
 #F_CPU		= 16000000
-MONITOR_PORT = /dev/ttyUSB0
+MONITOR_PORT = /dev/ttyUSB1
 
 # Avrdude code for programming
 AVRDUDE		= /usr/bin/avrdude
