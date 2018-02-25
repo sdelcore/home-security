@@ -41,3 +41,25 @@ git clone https://github.com/esp8266/Arduino.git esp8266
   397  make PYTHON=python3
 export PATH=/home/sdelcore/esp-open-sdk/xtensa-lx106-elf/bin:$PATH
 ```
+
+
+##Flashing the ESP8266
+ensure:
+| UNO  | ESP8266 |
+|:----:|:-------:|
+| RX   | RX      |
+| TX   | TX      |
+| GND  | GND     |
+| 3.3V | VCC     |
+| 3.3V | CH_PD   |
+| GND  | GPIO_0  |
+
+##Running ESP8266 with Arduino
+| UNO  | ESP8266 |
+|:----:|:-------:|
+| RX   | TX      |
+| TX   | RX      |
+| GND  | GND     |
+| 3.3V | VCC     |
+| 3.3V | CH_PD   |
+| -    | GPIO_0  |
