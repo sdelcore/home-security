@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<style>
+.button {
+    border: none;
+    color: white;
+    width: 50%;
+    height: 30%;
+    padding: 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 26px;
+    cursor: pointer;
+    position: absolute;
+    top: 20%;
+    left: 25%;
+}
+
+.arm {
+    background-color: #f4511e; /* red */
+}
+
+.disarm {
+    background-color: #4CAF50; /* Green */
+}
+</style>
+<script type="text/javascript">
+
+function arm()
+{
+    ws.send("1");    
+}
+
+function disarm()
+{
+    ws.send("0");
+}
+
+var ws = new WebSocket("ws://192.168.0.10:8081");
+ws.binaryType = "arraybuffer"
+ws.onopen = function()
+{
+    ws.send("STATUS");
+};
+ws.onmessage = function (evt) 
+{ 
+    var msg = bin2String(evt.data);
+    
+    if(msg == "1")
+    {
+        document.getElementById("arm").style.display = "none";
+        document.getElementById("disarm").style.display = "inline-block";
+    }
+    else if(msg == "0")
+    {
+        document.getElementById("arm").style.display = "inline-block";
+        document.getElementById("disarm").style.display = "none";
+    }
+};
+
+function bin2String(array) {
+    return String.fromCharCode.apply(null, new Uint8Array(array));
+}
+
+</script>
+   </head>
+   <body>
+      <button id="arm" class="button arm" onclick="javascript:arm()">Arm</button>
+      <button id="disarm" class="button disarm" onclick="javascript:disarm()">Disarm</button>
+   </body>
+</html>
